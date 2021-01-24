@@ -87,4 +87,60 @@ ui <- fluidPage(
 )
 
 shinyApp(ui, server)
-  
+
+ui <- fluidPage(
+  textOutput('text'),
+  verbatimTextOutput('code')
+)
+
+server <- function(input, output, session) {
+  output$text <- renderText({
+    "Hello friend!"
+  })
+  output$code <- renderPrint({
+    summary(1:10)
+  })
+}
+
+shinyApp(ui, server)
+library(DT)
+
+ui <- fluidPage(
+  tableOutput('static'),
+  dataTableOutput('dynamic')
+)
+server <- function(input, output, session) {
+  output$static <- renderTable(head(mtcars))
+  output$dynamic <- renderDataTable(mtcars, options = list(pageLength = 5))
+}
+
+shinyApp(ui, server)
+
+ui <- fluidPage(
+  plotOutput('plot', width = '400px')
+)
+server <- function(input, output, session){
+  output$plot <- renderPlot(plot(1:5), res = 96)
+}
+shinyApp(ui, server)
+
+ui <- fluidPage(
+  titlePanel('Central limit theorem'),
+  sidebarLayout(
+    sidebarPanel(
+      numericInput('m', 'Number of samples:', 2, min = 1, max = 100)
+    ),
+    mainPanel(
+      plotOutput('hist')
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$hist <- renderPlot({
+    means <- replicate(1e4, mean(runif(input$m)))
+    hist(means, breaks = 20)
+  }, res = 96)
+}
+
+shinyApp(ui, server)
